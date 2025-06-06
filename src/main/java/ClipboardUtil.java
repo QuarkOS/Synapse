@@ -19,4 +19,5 @@ public class ClipboardUtil {
             return null; // return null if an error occurs
         }
     }
+
 }

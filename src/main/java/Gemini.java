@@ -1,27 +1,22 @@
 import com.google.common.collect.ImmutableMap;
 import com.google.genai.Client;
-import com.google.genai.Models;
 import com.google.genai.types.*;
 import io.github.cdimascio.dotenv.Dotenv;
-import org.checkerframework.checker.units.qual.C;
 
 public class Gemini {
     public static void main(String[] args) {
         Dotenv dotenv = Dotenv.load();
         final String GOOGLE_API_KEY = dotenv.get("GOOGLE_API_KEY");
 
+        // Initialize the client with the API key
         Client client = Client.builder()
                 .apiKey(GOOGLE_API_KEY)
                 .build();
 
-//        String prompt = "What is the capital of France?";
-//        GenerateContentResponse response = client.models.generateContent(
-//                "gemini-2.5-flash-preview-05-20",
-//                prompt,
-//                null
-//        );
+        String output = generateStructuredResponse(client, "Was ist NAT?");
+        System.out.println(output);
 
-        System.out.println(generateStructuredResponse(client, "Was ist NAT?"));
+        System.out.println(JSONUtil.extractTextFromResponse(output));
 
     }
 
