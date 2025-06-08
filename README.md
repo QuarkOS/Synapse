@@ -43,14 +43,14 @@ Follow these steps to get Synapse up and running on your machine.
 
 1.  **Clone the repository:**
     ```sh
-    git clone https://github.com/your-username/synapse.git
+    git clone https://github.com/QuarkOS/synapse.git
     cd synapse
     ```
 
 2.  **Configure your API key:**
-    Create a configuration file named `config.properties` in the `src/main/resources` directory. Add your API key to this file:
+    Create a configuration file named `.env` in the `src/main/resources` directory. Add your API key to this file:
     ```properties
-    API_KEY=your_api_key_here
+    GOOGLE_API_KEY=your_api_key_here
     ```
 
 3.  **Build the project:**
