@@ -31,6 +31,8 @@ public class Gemini {
         GenerateContentResponse response =
                 client.models.generateContent("gemini-2.5-flash-preview-05-20", prompt, config);
 
+
+        ClipboardUtil.copyToClipboard(JSONUtil.extractTextFromResponse(response.text()));
         return response.text();
     }
 
@@ -66,6 +68,7 @@ public class Gemini {
         GenerateContentResponse response =
                 client.models.generateContent("gemini-2.5-flash-preview-05-20", content, config);
 
+        ClipboardUtil.copyToClipboard(JSONUtil.extractTextFromResponse(response.text()));
         return response.text();
     }
 }
