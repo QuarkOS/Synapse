@@ -4,23 +4,15 @@ import com.google.genai.types.*;
 import io.github.cdimascio.dotenv.Dotenv;
 
 public class Gemini {
-    public static void main(String[] args) {
-        Dotenv dotenv = Dotenv.load();
-        final String GOOGLE_API_KEY = dotenv.get("GOOGLE_API_KEY");
+    static Dotenv dotenv = Dotenv.load();
+    static final String GOOGLE_API_KEY = dotenv.get("GOOGLE_API_KEY");
 
-        // Initialize the client with the API key
-        Client client = Client.builder()
-                .apiKey(GOOGLE_API_KEY)
-                .build();
+    // Initialize the client with the API key
+    static Client client = Client.builder()
+            .apiKey(GOOGLE_API_KEY)
+            .build();
 
-        String output = generateStructuredResponseWithImageData(client, "Whats on the screen?");
-        System.out.println(output);
-
-        System.out.println(JSONUtil.extractTextFromResponse(output));
-
-    }
-
-    public static String generateStructuredResponse(Client client, String prompt) {
+    public static String generateStructuredResponse(String prompt) {
         Schema schema =
                 Schema.builder()
                         .type("object")
@@ -42,7 +34,7 @@ public class Gemini {
         return response.text();
     }
 
-    public static String generateStructuredResponseWithImageData(Client client, String prompt) {
+    public static String generateStructuredResponseWithImageData(String prompt) {
         Schema schema =
                 Schema.builder()
                         .type("object")
