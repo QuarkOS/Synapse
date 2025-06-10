@@ -1,5 +1,8 @@
 # Synapse 🧠✨
 
+![GitHub stars](https://img.shields.io/github/stars/QuarkOS/synapse)
+![License](https://img.shields.io/github/license/QuarkOS/synapse)
+
 **Copy a question, paste an answer.**
 
 Synapse redefines information retrieval by turning your standard clipboard into an instant answer engine. It's a lightweight background assistant, built with Java, that works with the one command you use constantly: **Copy**.
