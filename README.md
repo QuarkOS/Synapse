@@ -51,7 +51,12 @@ Follow these steps to get Synapse up and running on your machine.
     ```
 
 2.  **Configure your API key:**
-    Create a configuration file named `.env` in the `src/main/resources` directory. Add your API key to this file:
+    Create a configuration file named `.env` in the `src/main/resources` directory. 
+    
+    > [!NOTE]
+    > Currently, Synapse is configured to use the Google Gemini API. Support for other providers like OpenAI is planned for a future release.
+
+    Add your API key to this file:
     ```properties
     GOOGLE_API_KEY=your_api_key_here
     ```
@@ -77,9 +82,8 @@ After building, you can run the application from your terminal.
     *   For **Gradle**, it will be in the `build/libs/` directory.
 
 2.  **Run the application:**
-    *(Replace `synapse-1.0.jar` with the actual name of the generated JAR file)*
     ```sh
-    java -jar target/synapse-1.0.jar
+    java -jar target/synapse-1.0-SNAPSHOT.jar
     ```
 
 Synapse will now be running in the background. Simply copy a question from any application to see it in action! To stop the application, return to the terminal and press `Ctrl+C`.
