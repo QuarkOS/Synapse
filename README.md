@@ -1,8 +1,8 @@
 # Synapse 🧠✨
 
-![GitHub stars](https://img.shields.io/github/stars/QuarkOS/synapse)
-![Project Board](https://img.shields.io/badge/Project-Roadmap-7B68EE?style=flat-square)
-![License](https://img.shields.io/github/license/QuarkOS/synapse)
+![GitHub stars](https://img.shields.io/github/stars/QuarkOS/synapse?style=flat-square)
+[![Project Roadmap](https://img.shields.io/badge/Project-Roadmap-7B68EE?style=flat-square)](https://github.com/users/QuarkOS/projects/1/views/1)
+![License](https://img.shields.io/github/license/QuarkOS/synapse?style=flat-square)
 
 **Copy a question, paste an answer.**
 
@@ -10,10 +10,7 @@ Synapse redefines information retrieval by turning your standard clipboard into 
 
 Just find a question anywhere on your screen, copy it, and Synapse instantly replaces it with a concise, AI-generated answer in your clipboard. No hotkeys to learn, no windows to switch—it feels like magic.
 
-<!-- 
-**RECOMMENDATION:** Create a short screen recording of the workflow (highlighting text, pressing Ctrl+C, then pasting the answer in a notepad) and convert it to a GIF. Upload it to your repo and replace this comment block with the link.
-Example: ![Synapse Demo GIF](link-to-your-gif.gif) 
--->
+
 
 ## The Magic Workflow
 
@@ -39,9 +36,9 @@ Follow these steps to get Synapse up and running on your machine.
 
 ### Prerequisites
 
-*   **Java Development Kit (JDK) 17.0.3** or higher.
+*   **Java Development Kit (JDK) 17** or higher.
 *   **Apache Maven** or **Gradle** to build the project.
-*   An **API key** from your AI provider (e.g., OpenAI, Gemini, etc.).
+*   An **API key** from your AI provider (e.g., Google Gemini).
 
 ### Installation & Setup
 
@@ -89,13 +86,21 @@ After building, you can run the application from your terminal.
 
 Synapse will now be running in the background. Simply copy a question from any application to see it in action! To stop the application, return to the terminal and press `Ctrl+C`.
 
+## 🗺️ Roadmap
+
+Want to see what's planned, what's in progress, or suggest a new feature? Check out our interactive project board!
+
+👉 **[View the Project Roadmap](https://github.com/users/QuarkOS/projects/1/views/1)**
+
 ## Who is this for?
 
 Synapse is built for anyone who values focus and speed. It's the ultimate productivity hack for **students**, **researchers**, **developers**, and curious minds who want answers without the friction.
 
 ## Contributing
 
-Contributions are welcome! If you have an idea for a new feature or have found a bug, please open an issue or submit a pull request.
+Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+We use our [GitHub Project Board](https://github.com/users/QuarkOS/projects/1/views/1) to track tasks and bugs. This is the best place to start if you're looking for something to work on.
 
 1.  Fork the Project
 2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
