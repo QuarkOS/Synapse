@@ -6,6 +6,7 @@ import org.quarkos.util.ClipboardUtil;
 public class UniversalHotkeyLogic implements PresetHotkeys.PresetHotkeyActions {
 
     private boolean synapseActive = false;
+    private boolean debugMode = false;
 
     @Override
     public void onActivateSynapse() {
@@ -34,6 +35,16 @@ public class UniversalHotkeyLogic implements PresetHotkeys.PresetHotkeyActions {
             }
         } else {
             System.out.println("Clipboard is empty or contains no text.");
+        }
+    }
+
+    @Override
+    public void onToggleDebugMode() {
+        this.debugMode = !this.debugMode;
+        if (this.debugMode) {
+            System.out.println("Debug mode activated. Additional logging will be displayed.");
+        } else {
+            System.out.println("Debug mode deactivated. Returning to normal logging level.");
         }
     }
 
