@@ -1,3 +1,5 @@
+package org.quarkos.util;
+
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -19,5 +21,4 @@ public class ClipboardUtil {
             return null;
         }
     }
-
 }

@@ -23,7 +23,19 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>2.19.0</version>
+            <version>2.13.4</version> <!-- Last attempt with a different stable version -->
+        </dependency>
+        <!-- Added Jackson Databind for JSON processing -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.13.4</version> <!-- Last attempt with a different stable version -->
+        </dependency>
+        <!-- Added Google Guava for ImmutableMap -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>30.0-jre</version> <!-- Last attempt with a different stable version -->
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.github.kwhat/jnativehook -->
         <dependency>

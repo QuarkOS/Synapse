@@ -41,12 +41,14 @@ public class HotkeyCombination {
      */
     public boolean isPressed(Map<Integer, Boolean> pressedKeys) {
         for (int keyCode : keyCodes) {
-            Boolean isPressed = pressedKeys.get(keyCode);
-            if (isPressed == null || !isPressed) {
-                return false;
+            if (!pressedKeys.getOrDefault(keyCode, false)) {
+                return false; // Not all keys in the combination are pressed.
             }
         }
-        return true;
+
+        // Ensure that no other keys are pressed.
+        long totalPressed = pressedKeys.values().stream().filter(Boolean::booleanValue).count();
+        return totalPressed == keyCodes.length;
     }
 
     /**

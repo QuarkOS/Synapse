@@ -1,7 +1,12 @@
+package org.quarkos.ai;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.genai.Client;
 import com.google.genai.types.*;
 import io.github.cdimascio.dotenv.Dotenv;
+import org.quarkos.util.ClipboardUtil;
+import org.quarkos.util.JSONUtil;
+import org.quarkos.util.ScreenshotUtil;
 
 public class Gemini {
     static Dotenv dotenv = Dotenv.load();

@@ -1,3 +1,5 @@
+package org.quarkos.util;
+
 import javax.imageio.ImageIO;
 import java.awt.Rectangle;
 import java.awt.Robot;
