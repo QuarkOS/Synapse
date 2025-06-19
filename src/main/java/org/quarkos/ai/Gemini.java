@@ -157,6 +157,7 @@ public class Gemini {
                 client.models.generateContent("gemini-2.5-flash", content, config);
 
         System.out.println("Response generated successfully.");
+        System.out.println("FULL RESPONSE: " + response.text());
 
         ClipboardUtil.copyToClipboard(JSONUtil.extractTextFromResponse(response.text()));
         System.out.println("Response copied to clipboard.");
@@ -167,13 +168,15 @@ public class Gemini {
      * Convenience method that loads a PDF file and processes it
      *
      * @param prompt   The prompt to send with the PDF
-     * @param pdfPath  Path to the PDF file
+     * @param pdfName  Name to the PDF file
      * @return The response text
      */
-    public static String generateStructuredResponseWithPDFPath(String prompt, String pdfPath) {
+    public static String generateStructuredResponseWithPDFPath(String prompt, String pdfName) {
         try {
-            System.out.println("Reading PDF file: " + pdfPath);
-            byte[] pdfBytes = Files.readAllBytes(Paths.get(pdfPath));
+            System.out.println("Reading PDF file: " + pdfName);
+            Path pdfPath = Paths.get("src/main/java/org/quarkos/context/pdf/" + pdfName);
+            System.out.println("Full Path: " + pdfPath.toAbsolutePath());
+            byte[] pdfBytes = Files.readAllBytes(pdfPath);
             return generateStructuredResponseWithPDFBytes(prompt, pdfBytes);
         } catch (IOException e) {
             System.err.println("Error reading PDF file: " + e.getMessage());
@@ -181,3 +184,4 @@ public class Gemini {
         }
     }
 }
+
