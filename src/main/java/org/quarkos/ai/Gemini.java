@@ -22,59 +22,37 @@ public class Gemini {
     static Dotenv dotenv = Dotenv.load();
     static final String GOOGLE_API_KEY = dotenv.get("GOOGLE_API_KEY");
 
-    public static final List<String> models = List.of(
-            "gemini-2.5-flash-preview-05-20", // Zu langsam
-            "gemini-2.5-flash", // Zu langsam
-            //"gemini-2.5-pro", // Wahrscheinlich zu langsam und sicherlich zu teuer
-            "gemini-2.5-flash-lite-preview-06-17", // Perfekt für Quizantworten, schnell und präzise
-            "gemini-2.0-flash", // Gut für richtige und schnelle (jedoch nicht immer ganz ausführliche) Antworten
-            "gemini-2.0-flash-lite" // Gut
+    public static final List<String> models = List.of( // Might turn into an enum later, but for now this is fine
+        "gemini-2.5-flash-preview-05-20",
+        "gemini-2.5-flash",
+        //"gemini-2.5-pro", // Probably too slow and most definitely too expensive; Might add usage for premium API users later
+        "gemini-2.5-flash-lite-preview-06-17", // Perfect for quiz questions, fast and good
+        "gemini-2.0-flash", // Pretty good, pretty much the same as gemini-2.5-flash-lite-preview-06-17, however the answers are sometimes not elaborated enough
+        "gemini-2.0-flash-lite" // It's alright, but not as good as gemini-2.5-flash-lite-preview-06-17
     );
 
     // Initialize the client with the API key
     static Client client = Client.builder()
-            .apiKey(GOOGLE_API_KEY)
-            .build();
+        .apiKey(GOOGLE_API_KEY)
+        .build();
 
-    public static String generateStructuredResponse(String prompt) {
-        Schema schema =
-                Schema.builder()
-                        .type("object")
-                        .properties(
-                                ImmutableMap.of(
-                                        "Text", Schema.builder().type(Type.Known.STRING).description(prompt).build()
-                                ))
-                        .build();
-        GenerateContentConfig config =
-                GenerateContentConfig.builder()
-                        .responseMimeType("application/json")
-                        .candidateCount(1)
-                        .responseSchema(schema)
-                        .build();
+    public static Map.Entry<String, Long> generateStructuredResponse(String prompt, String modelName) {
+        TimerUtil.start();
+        Schema schema = createDefaultSchema(prompt);
+        GenerateContentConfig config = createDefaultConfig(schema);
 
         GenerateContentResponse response =
-                client.models.generateContent("gemini-2.0-flash-lite", prompt, config);
-
+                client.models.generateContent(modelName, prompt, config);
+        TimerUtil.lap("AI response generation");
 
         ClipboardUtil.copyToClipboard(JSONUtil.extractTextFromResponse(response.text()));
-        return response.text();
+        return new AbstractMap.SimpleEntry<>(response.text(), TimerUtil.stop());
     }
 
-    public static String generateStructuredResponseWithImageData(String prompt) {
-        Schema schema =
-                Schema.builder()
-                        .type("object")
-                        .properties(
-                                ImmutableMap.of(
-                                        "Text", Schema.builder().type(Type.Known.STRING).description("Concise Answer to the current quiz question").build()
-                                ))
-                        .build();
-        GenerateContentConfig config =
-                GenerateContentConfig.builder()
-                        .responseMimeType("application/json")
-                        .candidateCount(1)
-                        .responseSchema(schema)
-                        .build();
+    public static Map.Entry<String, Long> generateStructuredResponseWithImageData(String prompt, String modelName) {
+        TimerUtil.start();
+        Schema schema = createDefaultSchema(prompt);
+        GenerateContentConfig config = createDefaultConfig(schema);
 
         byte[] screenshotBytes;
 
@@ -83,134 +61,26 @@ public class Gemini {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        TimerUtil.lap("Screenshot taken");
         Content content =
                 Content.fromParts(
                         Part.fromText(prompt),
                         Part.fromBytes(screenshotBytes, "image/png")
                 );
+        TimerUtil.lap("Content preparation");
 
         GenerateContentResponse response =
-                client.models.generateContent("gemini-2.5-flash-preview-05-20", content, config);
+                client.models.generateContent(modelName, content, config);
+        TimerUtil.lap("AI response generation");
 
         ClipboardUtil.copyToClipboard(JSONUtil.extractTextFromResponse(response.text()));
-        return response.text();
-    }
-
-    public static String generateStructuredResponseWithPDFContext(String prompt) {
-        Schema schema =
-                Schema.builder()
-                        .type("object")
-                        .properties(
-                                ImmutableMap.of(
-                                        "Text", Schema.builder().type(Type.Known.STRING).description("Concise Answer to the current quiz question").build()
-                                ))
-                        .build();
-        GenerateContentConfig config =
-                GenerateContentConfig.builder()
-                        .responseMimeType("application/json")
-                        .candidateCount(1)
-                        .responseSchema(schema)
-                        .build();
-
-        try {
-            File file = new File("quiz_context.pdf");
-            System.out.println("Uploading PDF file: " + file.getAbsolutePath());
-            com.google.genai.types.File pdfFile = client.files.upload(new FileInputStream(file), file.getTotalSpace(), UploadFileConfig.builder().mimeType("application/pdf").build());
-            System.out.println("PDF file uploaded successfully.");
-
-            Content content =
-                    Content.fromParts(
-                            Part.fromText(prompt),
-                            Part.fromUri(pdfFile.uri().get(), "application/pdf")
-                    );
-            System.out.println("Generating response with PDF context...");
-
-            GenerateContentResponse response =
-                    client.models.generateContent("gemini-2.5-flash", content, config);
-            System.out.println("Response generated successfully.");
-
-            ClipboardUtil.copyToClipboard(JSONUtil.extractTextFromResponse(response.text()));
-            System.out.println("Response copied to clipboard.");
-            return response.text();
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static String generateStructuredResponseWithPDFBytes(String prompt, byte[] pdfBytes) {
-        Schema schema =
-                Schema.builder()
-                        .type("object")
-                        .properties(
-                                ImmutableMap.of(
-                                        "Text", Schema.builder().type(Type.Known.STRING).description("Concise Answer to the current quiz question").build()
-                                ))
-                        .build();
-        GenerateContentConfig config =
-                GenerateContentConfig.builder()
-                        .responseMimeType("application/json")
-                        .candidateCount(1)
-                        .responseSchema(schema)
-                        .build();
-
-        System.out.println("Creating content with PDF data...");
-
-        // Create content directly from PDF bytes (no file upload needed)
-        Content content =
-                Content.fromParts(
-                        Part.fromText(prompt),
-                        Part.fromBytes(pdfBytes, "application/pdf")
-                );
-
-        System.out.println("Generating response with inline PDF data...");
-
-        GenerateContentResponse response =
-                client.models.generateContent("gemini-2.5-flash", content, config);
-
-        System.out.println("Response generated successfully.");
-        System.out.println("FULL RESPONSE: " + response.text());
-
-        ClipboardUtil.copyToClipboard(JSONUtil.extractTextFromResponse(response.text()));
-        System.out.println("Response copied to clipboard.");
-        return response.text();
-    }
-
-    /**
-     * Convenience method that loads a PDF file and processes it
-     *
-     * @param prompt   The prompt to send with the PDF
-     * @param pdfName  Name to the PDF file
-     * @return The response text
-     */
-    public static String generateStructuredResponseWithPDFPath(String prompt, String pdfName) {
-        try {
-            System.out.println("Reading PDF file: " + pdfName);
-            Path pdfPath = Paths.get("src/main/java/org/quarkos/context/pdf/" + pdfName);
-            System.out.println("Full Path: " + pdfPath.toAbsolutePath());
-            byte[] pdfBytes = Files.readAllBytes(pdfPath);
-            return generateStructuredResponseWithPDFBytes(prompt, pdfBytes);
-        } catch (IOException e) {
-            System.err.println("Error reading PDF file: " + e.getMessage());
-            throw new RuntimeException(e);
-        }
+        return new AbstractMap.SimpleEntry<>(response.text(), TimerUtil.stop());
     }
 
     public static Map.Entry<String, Long> generateStructuredResponseWithMultipleContexts(String prompt, Map<String, byte[]> contexts, String modelName) {
         TimerUtil.start();
-        Schema schema =
-                Schema.builder()
-                        .type("object")
-                        .properties(
-                                ImmutableMap.of(
-                                        "Text", Schema.builder().type(Type.Known.STRING).description("Concise Answer to the current quiz question").build()
-                                ))
-                        .build();
-        GenerateContentConfig config =
-                GenerateContentConfig.builder()
-                        .responseMimeType("application/json")
-                        .candidateCount(1)
-                        .responseSchema(schema)
-                        .build();
+        Schema schema = createDefaultSchema(prompt);
+        GenerateContentConfig config = createDefaultConfig(schema);
 
         List<Part> parts = new ArrayList<>();
         parts.add(Part.fromText(prompt));
@@ -233,5 +103,29 @@ public class Gemini {
         ClipboardUtil.copyToClipboard(JSONUtil.extractTextFromResponse(response.text()));
         long elapsedTime = TimerUtil.stop();
         return new AbstractMap.SimpleEntry<>(response.text(), elapsedTime);
+    }
+
+    private static Schema createDefaultSchema(String prompt) {
+        return Schema.builder()
+                .type("object")
+                .properties(
+                        ImmutableMap.of(
+                                "Text", Schema.builder().type(Type.Known.STRING).description(prompt).build()
+                        ))
+                .build();
+    }
+
+    private static GenerateContentConfig createDefaultConfig(Schema schema) {
+        return GenerateContentConfig
+                .builder()
+                .thinkingConfig(
+                        ThinkingConfig
+                                .builder()
+                                .thinkingBudget(-1)
+                                .build()
+                )
+                .responseMimeType("application/json")
+                .responseSchema(schema)
+                .build();
     }
 }
