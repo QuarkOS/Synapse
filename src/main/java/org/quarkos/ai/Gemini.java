@@ -88,7 +88,7 @@ public class Gemini {
         for (Map.Entry<String, byte[]> entry : contexts.entrySet()) {
             byte[] fileBytes = entry.getValue();
             String mimeType;
-            mimeType = "text/plain";
+            mimeType = "text/plain"; // Currently only text files are supported, but this could be extended later
 
             parts.add(Part.fromBytes(fileBytes, mimeType));
         }
