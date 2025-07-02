@@ -2,8 +2,14 @@ package org.quarkos.hotkey;
 
 import org.quarkos.ai.Gemini;
 import org.quarkos.util.ClipboardUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 public class UniversalHotkeyLogic implements PresetHotkeys.PresetHotkeyActions {
+
+    private static Logger logger = LoggerFactory.getLogger(UniversalHotkeyLogic.class);
 
     private boolean synapseActive = false;
     private boolean debugMode = false;
@@ -12,29 +18,29 @@ public class UniversalHotkeyLogic implements PresetHotkeys.PresetHotkeyActions {
     public void onActivateSynapse() {
         this.synapseActive = !this.synapseActive;
         if (this.synapseActive) {
-            System.out.println("Synapse activated. You can now use the hotkeys.");
+            logger.info("Synapse activated. You can now use the hotkeys.");
         } else {
-            System.out.println("Synapse deactivated. Hotkeys are now disabled.");
+            logger.info("Synapse deactivated. Hotkeys are now disabled.");
         }
     }
 
     @Override
     public void onSendClipboardPrompt() {
-        System.out.println("Attempting to send clipboard content as prompt via hotkey...");
+        logger.debug("Attempting to send clipboard content as prompt via hotkey...");
         String prompt = ClipboardUtil.getClipboardContent();
         if (prompt != null && !prompt.trim().isEmpty()) {
             try {
-                System.out.println("Prompt from clipboard: \"" + prompt + "\"");
-                String response = Gemini.generateStructuredResponse(prompt);
-                System.out.println("Gemini Response: " + response);
+                logger.debug("Prompt from clipboard: \"" + prompt + "\"");
+                Map.Entry<String, Long> response = Gemini.generateStructuredResponse(prompt, Gemini.DEFAULT_MODEL);
+                logger.debug("Gemini Response: " + response);
                 // Optionally, copy the response back to the clipboard or show a notification
                 // ClipboardUtil.copyToClipboard(response); // Example
             } catch (Exception e) {
-                System.err.println("Error generating response from clipboard content: " + e.getMessage());
+                logger.error("Error generating response from clipboard content: " + e.getMessage());
                 e.printStackTrace();
             }
         } else {
-            System.out.println("Clipboard is empty or contains no text.");
+            logger.debug("Clipboard is empty or contains no text.");
         }
     }
 
@@ -42,9 +48,9 @@ public class UniversalHotkeyLogic implements PresetHotkeys.PresetHotkeyActions {
     public void onToggleDebugMode() {
         this.debugMode = !this.debugMode;
         if (this.debugMode) {
-            System.out.println("Debug mode activated. Additional logging will be displayed.");
+            logger.info("Debug mode activated. Additional logging will be displayed.");
         } else {
-            System.out.println("Debug mode deactivated. Returning to normal logging level.");
+            logger.info("Debug mode deactivated. Returning to normal logging level.");
         }
     }
 

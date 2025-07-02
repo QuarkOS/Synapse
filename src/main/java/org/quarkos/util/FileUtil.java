@@ -3,6 +3,9 @@ package org.quarkos.util;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.quarkos.hotkey.HotkeyManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +13,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class FileUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
 
     public static String[] getFileNamesFromDirectory(String directoryPath) {
         File folder = new File(directoryPath);
@@ -20,7 +25,7 @@ public class FileUtil {
         try {
             return Files.readAllBytes(Paths.get(filePath));
         } catch (IOException e) {
-            System.err.println("Error reading file " + filePath + ": " + e.getMessage());
+            logger.error("Error reading file " + filePath + ": " + e.getMessage());
             return null;
         }
     }
@@ -32,7 +37,7 @@ public class FileUtil {
                 return stripper.getText(document);
             }
         } catch (IOException e) {
-            System.err.println("Error extracting text from PDF " + filePath + ": " + e.getMessage());
+            logger.error("Error extracting text from PDF " + filePath + ": " + e.getMessage());
         }
         return "";
     }

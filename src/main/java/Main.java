@@ -1,10 +1,8 @@
+import org.quarkos.Model;
 import org.quarkos.ai.Gemini;
 import org.quarkos.util.ContextUtil;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -12,7 +10,7 @@ public class Main {
         List<Map.Entry<String, Long>> results = new ArrayList<>();
         int runs = 5;
 
-        for (String model : Gemini.models) {
+        for (Model model : Arrays.stream(Model.values()).toList()) {
             System.out.println("\n--- Testing model: " + model + " ---");
             long totalTime = 0;
             int successfulRuns = 0;
@@ -22,7 +20,7 @@ public class Main {
                     Map.Entry<String, Long> result = Gemini.generateStructuredResponseWithMultipleContexts(
                             "Answer this question based on the context: Welches Hauptproblem trat bei der Virtualisierung älterer x86-Prozessoren auf?",
                             allContexts,
-                            model
+                            model.toString()
                     );
 
                     System.out.println(result.getKey());
@@ -36,7 +34,7 @@ public class Main {
 
             if (successfulRuns > 0) {
                 long averageTime = totalTime / successfulRuns;
-                results.add(new java.util.AbstractMap.SimpleEntry<>(model, averageTime));
+                results.add(new java.util.AbstractMap.SimpleEntry<>(model.toString(), averageTime));
             }
         }
 

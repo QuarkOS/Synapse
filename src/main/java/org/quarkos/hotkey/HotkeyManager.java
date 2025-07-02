@@ -4,25 +4,27 @@ import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
- * A manager for global hotkeys using JNativeHook library.
+ * A manager for global hotkeys using JNativeHook library
  * This class allows registering callbacks for specific key combinations
- * that will trigger even when the application is not in focus.
+ * that will trigger even when the application is not in focus
  */
 public class HotkeyManager implements NativeKeyListener {
 
-    private static final Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
+    private static final Logger logger = LoggerFactory.getLogger(HotkeyManager.class);
     private final Map<HotkeyCombination, Runnable> registeredHotkeys;
     private final Map<Integer, Boolean> pressedKeys;
 
     /**
-     * Exception thrown when there's an issue with the hotkey functionality.
+     * Exception thrown when there's an issue with the hotkey functionality
      */
     public static class HotkeyException extends Exception {
         public HotkeyException(String message, Throwable cause) {
@@ -37,17 +39,11 @@ public class HotkeyManager implements NativeKeyListener {
         registeredHotkeys = new HashMap<>();
         pressedKeys = new HashMap<>();
 
-        // Disable JNativeHook logging to avoid console spam
-        logger.setLevel(Level.OFF);
-        // Optionally, disable individual logger messages (more granular control)
-        // Logger.getLogger(GlobalScreen.class.getPackage().getName()).setUseParentHandlers(false);
-
-
         try {
             GlobalScreen.registerNativeHook();
         } catch (NativeHookException e) {
-            System.err.println("There was a problem registering the native hook.");
-            System.err.println(e.getMessage());
+            logger.error("There was a problem registering the native hook.");
+            logger.debug(e.getMessage());
             // e.printStackTrace(); // Consider logging this to a file or a more robust logging framework
             throw new HotkeyException("Failed to register native hook", e);
         }
@@ -57,7 +53,7 @@ public class HotkeyManager implements NativeKeyListener {
     public void registerHotkey(HotkeyCombination combination, Runnable action) {
         if (combination == null || action == null) {
             // Or throw an IllegalArgumentException
-            System.err.println("HotkeyCombination or Runnable action cannot be null.");
+            logger.error("HotkeyCombination or Runnable action cannot be null.");
             return;
         }
         registeredHotkeys.put(combination, action);
@@ -85,7 +81,7 @@ public class HotkeyManager implements NativeKeyListener {
             GlobalScreen.unregisterNativeHook();
         } catch (NativeHookException e) {
             // Log this error appropriately
-            System.err.println("There was a problem unregistering the native hook: " + e.getMessage());
+            logger.error("There was a problem unregistering the native hook: " + e.getMessage());
             // e.printStackTrace();
         }
     }
@@ -93,7 +89,7 @@ public class HotkeyManager implements NativeKeyListener {
     @Override
     public void nativeKeyPressed(NativeKeyEvent e) {
         pressedKeys.put(e.getKeyCode(), true);
-         System.out.println("Key Pressed: " + NativeKeyEvent.getKeyText(e.getKeyCode()));
+         logger.debug("Key Pressed: " + NativeKeyEvent.getKeyText(e.getKeyCode()));
          printPressedKeys(); // For debugging
 
         for (Map.Entry<HotkeyCombination, Runnable> entry : registeredHotkeys.entrySet()) {

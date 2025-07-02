@@ -4,15 +4,12 @@ import com.google.common.collect.ImmutableMap;
 import com.google.genai.Client;
 import com.google.genai.types.*;
 import io.github.cdimascio.dotenv.Dotenv;
+import org.quarkos.Model;
 import org.quarkos.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,44 +18,80 @@ import java.util.Map;
 public class Gemini {
     static Dotenv dotenv = Dotenv.load();
     static final String GOOGLE_API_KEY = dotenv.get("GOOGLE_API_KEY");
+    private static final Logger logger = LoggerFactory.getLogger(Gemini.class);
 
-    public static final List<String> models = List.of( // Might turn into an enum later, but for now this is fine
-        "gemini-2.5-flash-preview-05-20",
-        "gemini-2.5-flash",
-        //"gemini-2.5-pro", // Probably too slow and most definitely too expensive; Might add usage for premium API users later
-        "gemini-2.5-flash-lite-preview-06-17", // Perfect for quiz questions, fast and good
-        "gemini-2.0-flash", // Pretty good, pretty much the same as gemini-2.5-flash-lite-preview-06-17, however the answers are sometimes not elaborated enough
-        "gemini-2.0-flash-lite" // It's alright, but not as good as gemini-2.5-flash-lite-preview-06-17
-    );
+    public static final Model DEFAULT_MODEL = Model.GEMINI_2_5_FLASH_LITE_PREVIEW_06_17; // Default model to use if none is specified
+    public static Model currentModel = DEFAULT_MODEL; // Current model to use, can be changed by the user
 
     // Initialize the client with the API key
     static Client client = Client.builder()
-        .apiKey(GOOGLE_API_KEY)
-        .build();
+            .apiKey(GOOGLE_API_KEY)
+            .build();
 
-    public static Map.Entry<String, Long> generateStructuredResponse(String prompt, String modelName) {
-        TimerUtil.start();
+    private static Schema createDefaultSchema(String prompt) {
+        return Schema.builder()
+                .type("object")
+                .properties(
+                        ImmutableMap.of(
+                                "Text", Schema.builder().type(Type.Known.STRING).description(prompt).build()
+                        ))
+                .build();
+    }
+
+    private static GenerateContentConfig createDefaultConfig(Schema schema) {
+        if (currentModel.isThinkingEnabled()) {
+            logger.info("Thinking enabled | supported");
+
+            return GenerateContentConfig
+                    .builder()
+                    .thinkingConfig(
+                            ThinkingConfig
+                                    .builder()
+                                    .thinkingBudget(-1)
+                                    .build()
+                    )
+                    .responseMimeType("application/json")
+                    .responseSchema(schema)
+                    .build();
+        } else {
+            logger.info("Thinking disabled | not supported by this model");
+
+            return GenerateContentConfig
+                    .builder()
+                    .responseMimeType("application/json")
+                    .responseSchema(schema)
+                    .build();
+        }
+    }
+
+    private static Map.Entry<String, Long> executeGeneration(String modelName, Content content, String prompt) {
         Schema schema = createDefaultSchema(prompt);
         GenerateContentConfig config = createDefaultConfig(schema);
+        TimerUtil.lap("Content preparation");
 
         GenerateContentResponse response =
-                client.models.generateContent(modelName, prompt, config);
+                client.models.generateContent(modelName, content, config);
         TimerUtil.lap("AI response generation");
 
         ClipboardUtil.copyToClipboard(JSONUtil.extractTextFromResponse(response.text()));
-        return new AbstractMap.SimpleEntry<>(response.text(), TimerUtil.stop());
+        long elapsedTime = TimerUtil.stop();
+        return new AbstractMap.SimpleEntry<>(response.text(), elapsedTime);
+    }
+
+    public static Map.Entry<String, Long> generateStructuredResponse(String prompt, Model model) {
+        TimerUtil.start();
+        Content content = Content.fromParts(Part.fromText(prompt));
+        return executeGeneration(model.getModelName(), content, prompt);
     }
 
     public static Map.Entry<String, Long> generateStructuredResponseWithImageData(String prompt, String modelName) {
         TimerUtil.start();
-        Schema schema = createDefaultSchema(prompt);
-        GenerateContentConfig config = createDefaultConfig(schema);
-
         byte[] screenshotBytes;
 
         try {
             screenshotBytes = ScreenshotUtil.getScreenshot();
         } catch (Exception e) {
+            logger.error("Failed to get screenshot: " + e.getMessage());
             throw new RuntimeException(e);
         }
         TimerUtil.lap("Screenshot taken");
@@ -67,20 +100,11 @@ public class Gemini {
                         Part.fromText(prompt),
                         Part.fromBytes(screenshotBytes, "image/png")
                 );
-        TimerUtil.lap("Content preparation");
-
-        GenerateContentResponse response =
-                client.models.generateContent(modelName, content, config);
-        TimerUtil.lap("AI response generation");
-
-        ClipboardUtil.copyToClipboard(JSONUtil.extractTextFromResponse(response.text()));
-        return new AbstractMap.SimpleEntry<>(response.text(), TimerUtil.stop());
+        return executeGeneration(modelName, content, prompt);
     }
 
     public static Map.Entry<String, Long> generateStructuredResponseWithMultipleContexts(String prompt, Map<String, byte[]> contexts, String modelName) {
         TimerUtil.start();
-        Schema schema = createDefaultSchema(prompt);
-        GenerateContentConfig config = createDefaultConfig(schema);
 
         List<Part> parts = new ArrayList<>();
         parts.add(Part.fromText(prompt));
@@ -94,38 +118,7 @@ public class Gemini {
         }
 
         Content content = Content.fromParts(parts.toArray(new Part[0]));
-        TimerUtil.lap("Content preparation");
 
-        GenerateContentResponse response =
-                client.models.generateContent(modelName, content, config);
-        TimerUtil.lap("AI response generation");
-
-        ClipboardUtil.copyToClipboard(JSONUtil.extractTextFromResponse(response.text()));
-        long elapsedTime = TimerUtil.stop();
-        return new AbstractMap.SimpleEntry<>(response.text(), elapsedTime);
-    }
-
-    private static Schema createDefaultSchema(String prompt) {
-        return Schema.builder()
-                .type("object")
-                .properties(
-                        ImmutableMap.of(
-                                "Text", Schema.builder().type(Type.Known.STRING).description(prompt).build()
-                        ))
-                .build();
-    }
-
-    private static GenerateContentConfig createDefaultConfig(Schema schema) {
-        return GenerateContentConfig
-                .builder()
-                .thinkingConfig(
-                        ThinkingConfig
-                                .builder()
-                                .thinkingBudget(-1)
-                                .build()
-                )
-                .responseMimeType("application/json")
-                .responseSchema(schema)
-                .build();
+        return executeGeneration(modelName, content, prompt);
     }
 }
