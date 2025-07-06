@@ -28,6 +28,17 @@ public class Gemini {
             .apiKey(GOOGLE_API_KEY)
             .build();
 
+    private static Schema createSongArtistSchema() {
+        return Schema.builder()
+                .type("object")
+                .properties(
+                        ImmutableMap.of(
+                                "songName", Schema.builder().type(Type.Known.STRING).description("The name of the song.").build(),
+                                "artist", Schema.builder().type(Type.Known.STRING).description("The artist of the song.").build()
+                        ))
+                .build();
+    }
+
     private static Schema createDefaultSchema(String prompt) {
         return Schema.builder()
                 .type("object")
@@ -74,6 +85,29 @@ public class Gemini {
         TimerUtil.lap("AI response generation");
 
         ClipboardUtil.copyToClipboard(JSONUtil.extractTextFromResponse(response.text()));
+        long elapsedTime = TimerUtil.stop();
+        return new AbstractMap.SimpleEntry<>(response.text(), elapsedTime);
+    }
+
+    public static Map.Entry<String, Long> extractSongFromAudio(byte[] audioBytes, String modelName) {
+        TimerUtil.start();
+
+        String prompt = "From the following audio, extract the song name and the artist. Return the result in a JSON format with the keys 'songName' and 'artist'.";
+
+        List<Part> parts = new ArrayList<>();
+        parts.add(Part.fromText(prompt));
+        parts.add(Part.fromBytes(audioBytes, "audio/wav"));
+
+        Content content = Content.fromParts(parts.toArray(new Part[0]));
+
+        Schema schema = createSongArtistSchema();
+        GenerateContentConfig config = createDefaultConfig(schema);
+        TimerUtil.lap("Content preparation");
+
+        GenerateContentResponse response =
+                client.models.generateContent(modelName, content, config);
+        TimerUtil.lap("AI response generation");
+
         long elapsedTime = TimerUtil.stop();
         return new AbstractMap.SimpleEntry<>(response.text(), elapsedTime);
     }

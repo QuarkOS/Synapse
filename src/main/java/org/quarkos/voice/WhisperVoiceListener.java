@@ -2,6 +2,7 @@ package org.quarkos.voice;
 
 import org.quarkos.Configuration;
 import org.quarkos.voice.command.CommandParser;
+import org.quarkos.voice.command.GeminiCommandParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,13 +24,17 @@ import java.util.concurrent.TimeUnit;
  */
 public class WhisperVoiceListener implements Runnable {
 
-    private final CommandParser commandParser;
+    private final Object commandParser; // Can be CommandParser or GeminiCommandParser
     private volatile boolean isListening = false;
 
     private ExecutorService transcriptionExecutor;
     private static final Logger logger = LoggerFactory.getLogger(WhisperVoiceListener.class);
 
     public WhisperVoiceListener(CommandParser commandParser) {
+        this.commandParser = commandParser;
+    }
+
+    public WhisperVoiceListener(GeminiCommandParser commandParser) {
         this.commandParser = commandParser;
     }
 
@@ -184,19 +189,26 @@ public class WhisperVoiceListener implements Runnable {
     private void transcribeAndParse(byte[] audioData, AudioFormat format) {
         if (audioData.length == 0) return;
         try {
-            // Step 1: Convert audio to text.
-            String transcript = WhisperTranscriber.transcribe(audioData, format);
-            logger.info("TRANSCRIBE START\n" + transcript + "\nTRANSCRIBE END");
+            if (commandParser instanceof GeminiCommandParser) {
+                // If using the AI parser, convert the raw PCM data to a valid WAV format in memory first.
+                logger.info("Converting raw audio to WAV format for Gemini...");
+                byte[] wavAudioData = WhisperTranscriber.createWavInMemory(audioData, format);
+                logger.info("WAV data created ({} bytes), sending to Gemini parser.", wavAudioData.length);
+                ((GeminiCommandParser) commandParser).parse(wavAudioData);
+            } else if (commandParser instanceof CommandParser) {
+                // If using the text-based parser, transcribe first.
+                String transcript = WhisperTranscriber.transcribe(audioData, format);
+                logger.info("TRANSCRIBE START\n" + transcript + "\nTRANSCRIBE END");
 
-            if (transcript != null && !transcript.isBlank()) {
-                logger.info("\nUnderstood: \"" + transcript.trim() + "\"");
-                // Step 2: Parse the text to execute a command.
-                commandParser.parse(transcript);
-            } else {
-                logger.warn("\nCould not understand audio.");
+                if (transcript != null && !transcript.isBlank()) {
+                    logger.info("\nUnderstood: \"" + transcript.trim() + "\"");
+                    ((CommandParser) commandParser).parse(transcript);
+                } else {
+                    logger.warn("\nCould not understand audio.");
+                }
             }
         } catch (Exception e) {
-            logger.error("Failed to transcribe audio buffer", e);
+            logger.error("Failed to process audio command", e);
         }
     }
 
@@ -218,4 +230,3 @@ public class WhisperVoiceListener implements Runnable {
         return (long) Math.sqrt(mean);
     }
 }
-

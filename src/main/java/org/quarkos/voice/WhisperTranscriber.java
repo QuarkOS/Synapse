@@ -83,7 +83,7 @@ public class WhisperTranscriber {
     /**
      * Wraps raw PCM audio data in a WAV header, creating a complete WAV file format in a byte array.
      */
-    private static byte[] createWavInMemory(byte[] rawAudioData, AudioFormat format) throws IOException {
+    public static byte[] createWavInMemory(byte[] rawAudioData, AudioFormat format) throws IOException {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
              AudioInputStream ais = new AudioInputStream(new ByteArrayInputStream(rawAudioData), format, rawAudioData.length / format.getFrameSize())) {
             AudioSystem.write(ais, AudioFileFormat.Type.WAVE, baos);
