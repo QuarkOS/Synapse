@@ -4,26 +4,26 @@ import com.google.common.collect.ImmutableMap;
 import com.google.genai.Client;
 import com.google.genai.types.*;
 import io.github.cdimascio.dotenv.Dotenv;
+import org.quarkos.Configuration;
 import org.quarkos.Model;
 import org.quarkos.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import javax.sound.sampled.*;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Gemini {
     static Dotenv dotenv = Dotenv.load();
     static final String GOOGLE_API_KEY = dotenv.get("GOOGLE_API_KEY");
     private static final Logger logger = LoggerFactory.getLogger(Gemini.class);
 
-    public static final Model DEFAULT_MODEL = Model.GEMINI_2_5_FLASH_LITE_PREVIEW_06_17; // Default model to use if none is specified
-    public static Model currentModel = DEFAULT_MODEL; // Current model to use, can be changed by the user
+    public static final Model DEFAULT_MODEL = Model.GEMINI_2_5_FLASH_LITE_PREVIEW_06_17;
+    public static final Model DEFAULT_SPEECH_MODEL = Model.GEMINI_2_5_FLASH_PREVIEW_TTS;
+    public static Model currentModel = DEFAULT_MODEL;
 
-    // Initialize the client with the API key
     static Client client = Client.builder()
             .apiKey(GOOGLE_API_KEY)
             .build();
@@ -146,7 +146,7 @@ public class Gemini {
         for (Map.Entry<String, byte[]> entry : contexts.entrySet()) {
             byte[] fileBytes = entry.getValue();
             String mimeType;
-            mimeType = "text/plain"; // Currently only text files are supported, but this could be extended later
+            mimeType = "text/plain";
 
             parts.add(Part.fromBytes(fileBytes, mimeType));
         }
@@ -155,4 +155,80 @@ public class Gemini {
 
         return executeGeneration(modelName, content, prompt);
     }
+
+//    public static Optional<byte[]> generateAudioFromText(String text, String modelName) {
+//        TimerUtil.start();
+//        VoiceConfig voiceConfig = VoiceConfig.builder().prebuiltVoiceConfig(PrebuiltVoiceConfig.builder().voiceName("Kore")).build();
+//        GenerateContentConfig speechConfig = GenerateContentConfig.builder().responseModalities("AUDIO")
+//                .speechConfig(SpeechConfig.builder().voiceConfig(voiceConfig)).build();
+//
+//        GenerateContentResponse response = client.models.generateContent(modelName,
+//                Content.fromParts(Part.fromText(text)),
+//                speechConfig);
+//
+//        Optional<Blob> inlineData = response.parts().get(0).inlineData();
+//        if (inlineData.isPresent()) {
+//            return inlineData.get().data();
+//        } else {
+//            throw new RuntimeException("No inline data found in the response.");
+//        }
+//    }
+//
+//    public static void playAudio(String textToSpeak) {
+//        logger.info("Requesting audio data from AI...");
+//        Optional<byte[]> audioBytesOptional = generateAudioFromText(textToSpeak, Gemini.DEFAULT_SPEECH_MODEL.getModelName());
+//
+//        audioBytesOptional.ifPresentOrElse(audioBytes -> {
+//            try {
+//                logger.info("Received {} bytes of MP3 audio data. Preparing for playback.", audioBytes.length);
+//                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(audioBytes);
+//
+//                try (AudioInputStream mp3Stream = AudioSystem.getAudioInputStream(byteArrayInputStream)) {
+//                    AudioFormat baseFormat = mp3Stream.getFormat();
+//                    AudioFormat decodedFormat = new AudioFormat(
+//                            AudioFormat.Encoding.PCM_SIGNED,
+//                            baseFormat.getSampleRate(),
+//                            16,
+//                            baseFormat.getChannels(),
+//                            baseFormat.getChannels() * 2,
+//                            baseFormat.getSampleRate(),
+//                            false
+//                    );
+//
+//                    logger.info("Decoded audio format: {}", decodedFormat);
+//
+//                    try (AudioInputStream pcmStream = AudioSystem.getAudioInputStream(decodedFormat, mp3Stream);
+//                         Clip clip = AudioSystem.getClip()) {
+//
+//                        clip.open(pcmStream);
+//
+//                        // --- START OF FIX ---
+//
+//                        // 1. Start playback (this is non-blocking)
+//                        clip.start();
+//                        logger.info("Playing audio...");
+//
+//                        // 2. Wait for playback to complete (this is blocking)
+//                        // This replaces the entire while-loop and listener logic.
+//                        clip.drain();
+//
+//                        logger.info("Playback finished.");
+//
+//                        // --- END OF FIX ---
+//                    }
+//                }
+//            } catch (UnsupportedAudioFileException e) {
+//                logger.error("MP3 audio format not supported. Ensure the mp3spi library is in your classpath.", e);
+//            } catch (LineUnavailableException e) {
+//                logger.error("Audio line for playback is unavailable.", e);
+//            } catch (IOException e) {
+//                logger.error("I/O error during audio playback.", e);
+//            }
+//            // InterruptedException is not thrown by drain(), so it's less critical here
+//            // but good to keep if you add other blocking calls.
+//
+//        }, () -> {
+//            logger.error("Failed to generate or retrieve audio data for the text: '{}'", textToSpeak);
+//        });
+//    }
 }
