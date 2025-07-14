@@ -1,21 +1,22 @@
 package org.quarkos;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class Configuration {
 
     // CommandParser settings
-    public static final List<String> PLAY_TRIGGERS = Arrays.asList(
+    public static final List<String> PLAY_TRIGGERS = Collections.unmodifiableList(Arrays.asList(
             "play", "spiele", "spiel", "search for", "find", "listen to", "please play"
-    );
-    public static final List<String> ARTIST_SEPARATORS = Arrays.asList(
+    ));
+    public static final List<String> ARTIST_SEPARATORS = Collections.unmodifiableList(Arrays.asList(
             "by", "von", "from", "bei"
-    );
-    public static final List<String> JUNK_WORDS = Arrays.asList(
+    ));
+    public static final List<String> JUNK_WORDS = Collections.unmodifiableList(Arrays.asList(
             "the song", "the track", "the artist", "a song", "song", "track", "artist",
             "can you", "could you", "please", "the trick"
-    );
+    ));
 
     // WhisperVoiceListener settings
     public static final int SAMPLE_RATE = 16000;

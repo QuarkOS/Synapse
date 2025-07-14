@@ -21,17 +21,36 @@ public class ConfigurationValidator {
      * @return true if configuration is valid, false otherwise
      */
     public static boolean validateConfiguration() {
+        return validateConfiguration("src/main/resources/.env");
+    }
+    
+    /**
+     * Validates the application configuration with a custom .env file path.
+     * 
+     * @param envFilePath path to the .env file
+     * @return true if configuration is valid, false otherwise
+     */
+    public static boolean validateConfiguration(String envFilePath) {
         List<String> errors = new ArrayList<>();
         List<String> warnings = new ArrayList<>();
         
         // Check if .env file exists
-        File envFile = new File("src/main/resources/.env");
+        File envFile = new File(envFilePath);
         if (!envFile.exists()) {
-            errors.add("Missing .env file at src/main/resources/.env");
+            errors.add("Missing .env file at " + envFilePath);
             errors.add("Please create the file and add your GOOGLE_API_KEY");
         } else {
             try {
-                Dotenv dotenv = Dotenv.load();
+                // Load from custom path if testing
+                Dotenv dotenv;
+                if (envFilePath.equals("src/main/resources/.env")) {
+                    dotenv = Dotenv.load();
+                } else {
+                    dotenv = Dotenv.configure()
+                            .directory(envFile.getParent())
+                            .filename(envFile.getName())
+                            .load();
+                }
                 
                 // Validate Google API Key
                 String apiKey = dotenv.get("GOOGLE_API_KEY");
