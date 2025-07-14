@@ -8,7 +8,7 @@ public class Main {
     public static void main(String[] args) {
         Map<String, byte[]> allContexts = ContextUtil.getAllContexts();
         List<Map.Entry<String, Long>> results = new ArrayList<>();
-        int runs = 5;
+        int runs = 3;
 
         for (Model model : Arrays.stream(Model.values()).toList()) {
             System.out.println("\n--- Testing model: " + model + " ---");
@@ -17,10 +17,11 @@ public class Main {
             for (int i = 0; i < runs; i++) {
                 try {
                     System.out.println("Run " + (i + 1) + " of " + runs + "...");
+
                     Map.Entry<String, Long> result = Gemini.generateStructuredResponseWithMultipleContexts(
-                            "Answer this question based on the context: Welches Hauptproblem trat bei der Virtualisierung älterer x86-Prozessoren auf?",
+                            "Based on the Apollo 17 Final Flight Plan, detail the sequence of activities for the Lunar Module Pilot (LMP) from the 'Go' for Undocking in lunar orbit until the completion of the first EVA's post-egress activities. Your answer should include specific time notations (GET), key spacecraft maneuvers, and the primary scientific tasks assigned to the LMP during this period.",
                             allContexts,
-                            model.toString()
+                            model.getModelName()
                     );
 
                     System.out.println(result.getKey());
