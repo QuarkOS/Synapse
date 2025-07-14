@@ -1,6 +1,7 @@
 package org.quarkos.ai;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.genai.Caches;
 import com.google.genai.Client;
 import com.google.genai.types.*;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -12,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.*;
 import java.io.*;
+import java.io.File;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -19,10 +22,13 @@ public class Gemini {
     static Dotenv dotenv = Dotenv.load();
     static final String GOOGLE_API_KEY = dotenv.get("GOOGLE_API_KEY");
     private static final Logger logger = LoggerFactory.getLogger(Gemini.class);
+    private static final Map<String, CachedContent> cacheManager = new HashMap<>();
 
     public static final Model DEFAULT_MODEL = Model.GEMINI_2_5_FLASH_LITE_PREVIEW_06_17;
-    public static final Model DEFAULT_SPEECH_MODEL = Model.GEMINI_2_5_FLASH_PREVIEW_TTS;
+    //public static final Model DEFAULT_SPEECH_MODEL = Model.GEMINI_2_5_FLASH_PREVIEW_TTS;
     public static Model currentModel = DEFAULT_MODEL;
+
+    private static CachedContent cachedContent;
 
     static Client client = Client.builder()
             .apiKey(GOOGLE_API_KEY)
@@ -61,6 +67,8 @@ public class Gemini {
                                     .thinkingBudget(-1)
                                     .build()
                     )
+                    .cachedContent(cachedContent.toString())
+
                     .responseMimeType("application/json")
                     .responseSchema(schema)
                     .build();
@@ -75,13 +83,10 @@ public class Gemini {
         }
     }
 
-    private static Map.Entry<String, Long> executeGeneration(String modelName, Content content, String prompt) {
-        Schema schema = createDefaultSchema(prompt);
-        GenerateContentConfig config = createDefaultConfig(schema);
+    private static Map.Entry<String, Long> executeGeneration(String modelName, Content content, GenerateContentConfig config) {
         TimerUtil.lap("Content preparation");
 
-        GenerateContentResponse response =
-                client.models.generateContent(modelName, content, config);
+        GenerateContentResponse response = client.models.generateContent("models/" + modelName, content, config);
         TimerUtil.lap("AI response generation");
 
         ClipboardUtil.copyToClipboard(JSONUtil.extractTextFromResponse(response.text()));
@@ -115,7 +120,9 @@ public class Gemini {
     public static Map.Entry<String, Long> generateStructuredResponse(String prompt, Model model) {
         TimerUtil.start();
         Content content = Content.fromParts(Part.fromText(prompt));
-        return executeGeneration(model.getModelName(), content, prompt);
+        Schema schema = createDefaultSchema(prompt);
+        GenerateContentConfig config = createDefaultConfig(schema);
+        return executeGeneration(model.getModelName(), content, config);
     }
 
     public static Map.Entry<String, Long> generateStructuredResponseWithImageData(String prompt, String modelName) {
@@ -134,26 +141,110 @@ public class Gemini {
                         Part.fromText(prompt),
                         Part.fromBytes(screenshotBytes, "image/png")
                 );
-        return executeGeneration(modelName, content, prompt);
+        Schema schema = createDefaultSchema(prompt);
+        GenerateContentConfig config = createDefaultConfig(schema);
+        return executeGeneration(modelName, content, config);
+    }
+
+    private static Object uploadFile(String filePath) {
+        UploadFileConfig uploadConfig = UploadFileConfig.builder()
+                .mimeType("application/pdf")
+                .build();
+
+        logger.info("Uploading file: " + filePath);
+
+        return client.files.upload(new File(filePath), uploadConfig);
+    }
+
+    private static void createContextCache(String contextName) {
+        List<Content> contents = new ArrayList<>();
+        for (int i = 0; i < FileUtil.getFileNamesFromDirectory(ContextUtil.PDF_CONTEXT_PATH).length; i++) {
+            contents.add(Content.fromParts(Part.fromBytes(FileUtil.readFileAsByteArray(ContextUtil.PDF_CONTEXT_PATH + File.separator + FileUtil.getFileNamesFromDirectory(ContextUtil.PDF_CONTEXT_PATH)[i]), "application/pdf")));
+        }
+
+        CreateCachedContentConfig cachedContentConfig = CreateCachedContentConfig.builder()
+                .contents(contents)
+                .displayName("Context cache for " + contextName)
+                .expireTime(Instant.now().plusSeconds(300))
+                .build();
+
+        cachedContent = client.caches.create(Gemini.currentModel.getModelName(), cachedContentConfig);
+    }
+
+    private static CachedContent getOrCreateCachedContent(Map<String, byte[]> contexts, String modelName) {
+        String cacheKey = "context_cache_for_" + modelName;
+
+        if (cacheManager.containsKey(cacheKey)) {
+            logger.info("Cache hit! Reusing existing cached content for model: {}", modelName);
+            return cacheManager.get(cacheKey);
+        }
+
+        logger.info("Cache miss. Creating a new cached content for model: {}", modelName);
+        logger.info("This one-time process may take a moment...");
+
+        List<Content> contentListForCache = new ArrayList<>();
+        for (Map.Entry<String, byte[]> entry : contexts.entrySet()) {
+            String fileName = entry.getKey();
+            byte[] fileBytes = entry.getValue();
+
+            logger.info("   - Uploading '{}' ({} bytes) to the File API...", fileName, fileBytes.length);
+
+            UploadFileConfig uploadConfig = UploadFileConfig.builder()
+                    .mimeType("application/pdf")
+                    .displayName(fileName)
+                    .build();
+
+            com.google.genai.types.File uploadedFile = client.files.upload(fileBytes, uploadConfig);
+            logger.info("   - Upload successful. URI: {}", uploadedFile.uri());
+
+            contentListForCache.add(Content.fromParts(Part.fromUri(uploadedFile.uri().get(), "application/pdf")));
+        }
+
+        logger.info("All files uploaded. Creating the cache configuration...");
+        CreateCachedContentConfig cachedContentConfig = CreateCachedContentConfig.builder()
+                .contents(contentListForCache)
+                .displayName("Project Context Cache")
+                .expireTime(Instant.now().plusSeconds(3600)) // 1h cache time
+                .build();
+
+        logger.info("Sending request to create cache for model: {}", modelName);
+        CachedContent newCache = client.caches.create(modelName, cachedContentConfig);
+
+        logger.info("Cache created successfully! Name: {}", newCache.name());
+
+        cacheManager.put(cacheKey, newCache);
+
+        return newCache;
+    }
+
+    private static GenerateContentConfig createConfigWithCache(Schema schema, CachedContent cache) {
+        if (currentModel.isThinkingEnabled()) {
+            logger.info("Thinking enabled | supported");
+        } else {
+            logger.info("Thinking disabled | not supported by this model");
+        }
+
+        String cacheName = cache.displayName()
+                .orElseThrow(() -> new IllegalStateException("CachedContent is missing a name. Cannot proceed."));
+
+        return GenerateContentConfig.builder()
+                .cachedContent(cacheName)
+                .responseMimeType("application/json")
+                .responseSchema(schema)
+                .build();
     }
 
     public static Map.Entry<String, Long> generateStructuredResponseWithMultipleContexts(String prompt, Map<String, byte[]> contexts, String modelName) {
         TimerUtil.start();
 
-        List<Part> parts = new ArrayList<>();
-        parts.add(Part.fromText(prompt));
+        CachedContent contextCache = getOrCreateCachedContent(contexts, modelName);
 
-        for (Map.Entry<String, byte[]> entry : contexts.entrySet()) {
-            byte[] fileBytes = entry.getValue();
-            String mimeType;
-            mimeType = "text/plain";
+        Content promptContent = Content.fromParts(Part.fromText(prompt));
 
-            parts.add(Part.fromBytes(fileBytes, mimeType));
-        }
+        Schema schema = createDefaultSchema(prompt);
+        GenerateContentConfig configWithCache = createConfigWithCache(schema, contextCache);
 
-        Content content = Content.fromParts(parts.toArray(new Part[0]));
-
-        return executeGeneration(modelName, content, prompt);
+        return executeGeneration(modelName, promptContent, configWithCache);
     }
 
 //    public static Optional<byte[]> generateAudioFromText(String text, String modelName) {
