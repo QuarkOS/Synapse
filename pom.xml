@@ -88,6 +88,13 @@
             <version>1.9.5.4</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/com.microsoft.cognitiveservices.speech/client-sdk -->
+        <dependency>
+            <groupId>com.microsoft.cognitiveservices.speech</groupId>
+            <artifactId>client-sdk</artifactId>
+            <version>1.44.0</version>
+        </dependency>
+
         <dependency>
             <groupId>com.googlecode.soundlibs</groupId>
             <artifactId>jlayer</artifactId>
