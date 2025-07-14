@@ -54,7 +54,7 @@ if mvn clean package -q; then
     echo "📚 For more information, see:"
     echo "   - README.md for usage instructions"
     echo "   - CONTRIBUTING.md for development guide" 
-    echo "   - IMPROVEMENTS.md for planned features"
+    echo "   - ROADMAP.md for strategic planning and feature specifications"
 else
     echo "❌ Build failed. Please check for errors above."
     exit 1

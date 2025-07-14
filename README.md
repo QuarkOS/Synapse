@@ -114,8 +114,7 @@ See our [Contributing Guide](CONTRIBUTING.md) for detailed information on how to
 
 ### 🗺️ Roadmap & Planning
 
-- **[Project Roadmap](ROADMAP.md)**: Strategic roadmap with milestones, timelines, and vision
-- **[Technical Improvements](IMPROVEMENTS.md)**: Detailed enhancement opportunities and implementation specs
+- **[Project Roadmap](ROADMAP.md)**: Strategic roadmap with milestones, timelines, vision, and detailed technical specifications
 - **[Issue Tracking Guide](ISSUE_TRACKING.md)**: Guidelines for effective issue reporting and community involvement
 
 Our roadmap includes:
