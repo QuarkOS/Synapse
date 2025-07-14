@@ -1,5 +1,6 @@
 package org.quarkos.ui;
 
+import org.quarkos.util.ConfigurationValidator;
 import java.util.Scanner;
 
 public class MainMenu {
@@ -87,6 +88,17 @@ public class MainMenu {
     }
 
     public static void main(String[] args) {
+        System.out.println("🧠 Synapse - AI-Powered Clipboard Assistant");
+        System.out.println("============================================\n");
+        
+        // Validate configuration before starting
+        if (!ConfigurationValidator.validateConfiguration()) {
+            System.err.println("\n❌ Configuration validation failed!");
+            ConfigurationValidator.printSetupGuidance();
+            System.out.println("Please fix the configuration issues and try again.");
+            System.exit(1);
+        }
+        
         MainMenu mainMenu = new MainMenu();
         mainMenu.displayMainMenu();
         mainMenu.readUserInput(); // Start reading user input

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📋 Project Roadmap
+    url: https://github.com/users/QuarkOS/projects/1/views/1
+    about: View our project roadmap and track development progress
+  - name: 💬 Discussions
+    url: https://github.com/QuarkOS/Synapse/discussions
+    about: Ask questions, share ideas, and discuss with the community
+  - name: 📚 Documentation
+    url: https://github.com/QuarkOS/Synapse/blob/main/README.md
+    about: Read the documentation and setup guide

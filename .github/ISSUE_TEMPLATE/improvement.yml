@@ -1,0 +1,106 @@
+name: Improvement Suggestion
+description: Suggest improvements to existing functionality in Synapse
+title: "[Improvement]: "
+labels: ["improvement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement! Help us make Synapse better by describing how we can enhance existing features.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component/Area
+      description: Which part of Synapse does this improvement relate to?
+      options:
+        - Copy & Answer System
+        - Spotify Voice Agent
+        - Voice Recognition/Whisper
+        - Text-to-Speech
+        - Hotkey Management
+        - Configuration System
+        - User Interface/Menu
+        - Documentation
+        - Build/Setup Process
+        - Error Handling
+        - Performance
+        - Code Quality
+        - Testing
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_behavior
+    attributes:
+      label: Current Behavior
+      description: Describe how the feature currently works
+      placeholder: Currently, the feature...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_improvement
+    attributes:
+      label: Proposed Improvement
+      description: Describe the specific improvement you'd like to see
+      placeholder: The improvement would...
+    validations:
+      required: true
+
+  - type: textarea
+    id: benefits
+    attributes:
+      label: Benefits
+      description: What are the benefits of this improvement?
+      placeholder: |
+        - Better user experience because...
+        - Improved performance by...
+        - Easier maintenance through...
+
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: Estimated Complexity
+      description: How complex do you think this improvement would be to implement?
+      options:
+        - Low - Simple change or configuration
+        - Medium - Moderate code changes
+        - High - Significant refactoring or new components
+        - Unknown - I'm not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation_ideas
+    attributes:
+      label: Implementation Ideas
+      description: Do you have any ideas about how this could be implemented?
+      placeholder: This could be implemented by...
+
+  - type: textarea
+    id: backwards_compatibility
+    attributes:
+      label: Backwards Compatibility
+      description: Would this improvement break existing functionality or require migration?
+      placeholder: This change would/wouldn't affect...
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional Context
+      description: Add any other context, examples, or references about the improvement.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues to ensure this improvement hasn't been suggested
+          required: true
+        - label: This improvement maintains Synapse's core philosophy of seamless operation
+          required: true
+        - label: I have considered the impact on existing users
+          required: true

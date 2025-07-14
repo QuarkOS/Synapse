@@ -102,6 +102,32 @@ Contributions are what make the open-source community such an amazing place to l
 
 We use our [GitHub Project Board](https://github.com/users/QuarkOS/projects/1/views/1) to track tasks and bugs. This is the best place to start if you're looking for something to work on.
 
+### 🐛 Reporting Issues & 💡 Suggesting Features
+
+We have structured issue templates to help you report bugs, request features, or suggest improvements:
+
+- **Bug Reports**: Found a problem? Use our bug report template
+- **Feature Requests**: Have an idea for a new feature? We'd love to hear it!  
+- **Improvements**: See ways to enhance existing functionality? Tell us about it!
+
+See our [Contributing Guide](CONTRIBUTING.md) for detailed information on how to contribute.
+
+### 🗺️ Roadmap & Improvements
+
+Check out our comprehensive improvement roadmap in [IMPROVEMENTS.md](IMPROVEMENTS.md) which includes:
+- Identified enhancement opportunities
+- Feature requests from the community  
+- Technical improvements and optimizations
+- Implementation priorities and complexity estimates
+
+### 📋 Development Setup
+
+1. **Quick Setup**: Run `./setup.sh` for automated setup assistance
+2. **Manual Setup**: Follow the installation steps above
+3. **Configuration**: Copy `.env.template` to `src/main/resources/.env` and configure
+
+### 📝 Pull Request Process
+
 1.  Fork the Project
 2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
 3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)

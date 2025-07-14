@@ -4,6 +4,10 @@ src/main/java/org/quarkos/context
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### Environment Configuration ###
+.env
+src/main/resources/.env
+
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml
@@ -12,7 +16,6 @@ src/main/java/org/quarkos/context
 *.iws
 *.iml
 *.ipr
-.env
 
 ### Eclipse ###
 .apt_generated
