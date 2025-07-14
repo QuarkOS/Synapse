@@ -112,11 +112,16 @@ We have structured issue templates to help you report bugs, request features, or
 
 See our [Contributing Guide](CONTRIBUTING.md) for detailed information on how to contribute.
 
-### 🗺️ Roadmap & Improvements
+### 🗺️ Roadmap & Planning
 
-Check out our comprehensive improvement roadmap in [IMPROVEMENTS.md](IMPROVEMENTS.md) which includes:
-- Identified enhancement opportunities
-- Feature requests from the community  
+- **[Project Roadmap](ROADMAP.md)**: Strategic roadmap with milestones, timelines, and vision
+- **[Technical Improvements](IMPROVEMENTS.md)**: Detailed enhancement opportunities and implementation specs
+- **[Issue Tracking Guide](ISSUE_TRACKING.md)**: Guidelines for effective issue reporting and community involvement
+
+Our roadmap includes:
+- Strategic planning with quarterly milestones
+- Identified enhancement opportunities  
+- Feature requests from the community
 - Technical improvements and optimizations
 - Implementation priorities and complexity estimates
 
