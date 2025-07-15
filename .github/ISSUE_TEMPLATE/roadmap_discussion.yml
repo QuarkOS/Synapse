@@ -1,0 +1,105 @@
+name: 📋 Roadmap Planning Discussion
+description: Discuss roadmap priorities, milestones, and project direction
+title: "[ROADMAP] "
+labels: ["roadmap", "discussion"]
+projects: ["QuarkOS/1"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to discuss roadmap planning, prioritization, and project direction.
+        
+  - type: dropdown
+    id: discussion-type
+    attributes:
+      label: Discussion Type
+      description: What kind of roadmap discussion is this?
+      options:
+        - Milestone Planning
+        - Feature Prioritization
+        - Release Planning
+        - Architecture Decision
+        - Community Feedback
+        - Roadmap Review
+    validations:
+      required: true
+      
+  - type: input
+    id: milestone-target
+    attributes:
+      label: Target Milestone/Release
+      description: Which milestone or release does this relate to?
+      placeholder: e.g., v1.1, Q2 2024, Next Release
+    validations:
+      required: false
+      
+  - type: textarea
+    id: discussion-topic
+    attributes:
+      label: Discussion Topic
+      description: What would you like to discuss?
+      placeholder: Describe the roadmap topic you want to discuss
+    validations:
+      required: true
+      
+  - type: textarea
+    id: current-state
+    attributes:
+      label: Current State
+      description: What's the current state of this area?
+      placeholder: Where are we now? What's been done?
+    validations:
+      required: false
+      
+  - type: textarea
+    id: proposed-direction
+    attributes:
+      label: Proposed Direction
+      description: What direction do you propose?
+      placeholder: What should we focus on? What are the priorities?
+    validations:
+      required: false
+      
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Approaches
+      description: What other approaches should we consider?
+      placeholder: Other ways to tackle this area
+    validations:
+      required: false
+      
+  - type: checkboxes
+    id: focus-areas
+    attributes:
+      label: Focus Areas
+      description: Which areas should be part of this discussion?
+      options:
+        - label: Core functionality improvements
+        - label: New AI provider integrations
+        - label: User experience enhancements
+        - label: Performance optimizations
+        - label: Security improvements
+        - label: Platform support (Windows, macOS, Linux)
+        - label: Configuration and customization
+        - label: Developer experience
+        - label: Documentation and tutorials
+        - label: Community building
+        
+  - type: textarea
+    id: success-criteria
+    attributes:
+      label: Success Criteria
+      description: How will we know this is successful?
+      placeholder: What metrics or outcomes would indicate success?
+    validations:
+      required: false
+      
+  - type: textarea
+    id: questions
+    attributes:
+      label: Questions for the Community
+      description: What questions do you have for other contributors?
+      placeholder: What input do you need from the community?
+    validations:
+      required: false

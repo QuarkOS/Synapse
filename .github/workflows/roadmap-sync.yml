@@ -1,0 +1,232 @@
+name: Sync Roadmap Data
+
+on:
+  schedule:
+    # Run daily at 9 AM UTC to sync roadmap data
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+    # Allow manual trigger
+  issues:
+    types: [opened, closed, labeled]
+  pull_request:
+    types: [opened, closed, merged]
+
+jobs:
+  sync-roadmap:
+    name: Sync Roadmap to Project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Sync issues to project
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            const { graphql } = require("@octokit/graphql");
+            
+            const graphqlWithAuth = graphql.defaults({
+              headers: {
+                authorization: `token ${{ secrets.PROJECT_TOKEN }}`,
+              },
+            });
+            
+            // Query to get project details
+            const projectQuery = `
+              query($org: String!, $number: Int!) {
+                organization(login: $org) {
+                  projectV2(number: $number) {
+                    id
+                    fields(first: 20) {
+                      nodes {
+                        ... on ProjectV2Field {
+                          id
+                          name
+                        }
+                        ... on ProjectV2SingleSelectField {
+                          id
+                          name
+                          options {
+                            id
+                            name
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+            
+            try {
+              const projectData = await graphqlWithAuth(projectQuery, {
+                org: "QuarkOS",
+                number: 1
+              });
+              
+              console.log("Project data retrieved successfully");
+              console.log("Project ID:", projectData.organization.projectV2.id);
+              
+              // Query repository issues labeled with 'roadmap'
+              const { data: issues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: 'roadmap',
+                state: 'all',
+                per_page: 100
+              });
+              
+              console.log(`Found ${issues.length} roadmap issues`);
+              
+              // Add issues to project if not already added
+              for (const issue of issues) {
+                try {
+                  const addItemMutation = `
+                    mutation($projectId: ID!, $contentId: ID!) {
+                      addProjectV2ItemByContentId(input: {
+                        projectId: $projectId
+                        contentId: $contentId
+                      }) {
+                        item {
+                          id
+                        }
+                      }
+                    }
+                  `;
+                  
+                  await graphqlWithAuth(addItemMutation, {
+                    projectId: projectData.organization.projectV2.id,
+                    contentId: issue.node_id
+                  });
+                  
+                  console.log(`Added issue #${issue.number} to project`);
+                } catch (error) {
+                  // Issue might already be in project
+                  console.log(`Issue #${issue.number} might already be in project`);
+                }
+              }
+              
+            } catch (error) {
+              console.error("Error syncing roadmap:", error);
+              core.setFailed(error.message);
+            }
+            
+  generate-roadmap-summary:
+    name: Generate Roadmap Summary
+    runs-on: ubuntu-latest
+    needs: sync-roadmap
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Generate roadmap markdown
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            
+            // Get roadmap issues
+            const { data: roadmapIssues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'roadmap',
+              state: 'all',
+              sort: 'created',
+              direction: 'desc',
+              per_page: 100
+            });
+            
+            // Group by labels/priority
+            const priorities = {
+              'Critical': [],
+              'High': [],
+              'Medium': [],
+              'Low': []
+            };
+            
+            const statuses = {
+              'Done': [],
+              'In Progress': [],
+              'To Do': []
+            };
+            
+            roadmapIssues.forEach(issue => {
+              // Categorize by priority
+              if (issue.labels.some(l => l.name.includes('critical'))) {
+                priorities.Critical.push(issue);
+              } else if (issue.labels.some(l => l.name.includes('high'))) {
+                priorities.High.push(issue);
+              } else if (issue.labels.some(l => l.name.includes('medium'))) {
+                priorities.Medium.push(issue);
+              } else {
+                priorities.Low.push(issue);
+              }
+              
+              // Categorize by status
+              if (issue.state === 'closed') {
+                statuses.Done.push(issue);
+              } else if (issue.labels.some(l => l.name.includes('in-progress'))) {
+                statuses['In Progress'].push(issue);
+              } else {
+                statuses['To Do'].push(issue);
+              }
+            });
+            
+            // Generate markdown summary
+            let markdown = `# 🗺️ Synapse Roadmap Summary\n\n`;
+            markdown += `*Last updated: ${new Date().toISOString().split('T')[0]}*\n\n`;
+            markdown += `> **Note**: This is an auto-generated summary. View the full interactive roadmap at [GitHub Projects](https://github.com/users/QuarkOS/projects/1/views/1)\n\n`;
+            
+            markdown += `## 📊 Status Overview\n\n`;
+            markdown += `- ✅ **Done**: ${statuses.Done.length} items\n`;
+            markdown += `- 🔄 **In Progress**: ${statuses['In Progress'].length} items\n`;
+            markdown += `- 📋 **To Do**: ${statuses['To Do'].length} items\n\n`;
+            
+            markdown += `## 🎯 Priority Breakdown\n\n`;
+            Object.entries(priorities).forEach(([priority, items]) => {
+              if (items.length > 0) {
+                markdown += `### ${priority} Priority (${items.length} items)\n\n`;
+                items.slice(0, 5).forEach(item => {
+                  const status = item.state === 'closed' ? '✅' : '📋';
+                  markdown += `- ${status} [${item.title}](${item.html_url})\n`;
+                });
+                if (items.length > 5) {
+                  markdown += `- ... and ${items.length - 5} more\n`;
+                }
+                markdown += '\n';
+              }
+            });
+            
+            markdown += `## 🚀 How to Contribute to the Roadmap\n\n`;
+            markdown += `1. **View the full roadmap**: Visit our [GitHub Project](https://github.com/users/QuarkOS/projects/1/views/1)\n`;
+            markdown += `2. **Suggest features**: Use our [Feature Request template](https://github.com/QuarkOS/Synapse/issues/new?template=feature_request.yml)\n`;
+            markdown += `3. **Join discussions**: Participate in [Roadmap Planning](https://github.com/QuarkOS/Synapse/issues/new?template=roadmap_discussion.yml)\n`;
+            markdown += `4. **Pick up tasks**: Look for [help wanted](https://github.com/QuarkOS/Synapse/labels/help%20wanted) issues\n\n`;
+            
+            // Write to docs folder
+            try {
+              fs.mkdirSync('docs', { recursive: true });
+              fs.writeFileSync('docs/ROADMAP.md', markdown);
+              console.log('Generated roadmap summary at docs/ROADMAP.md');
+            } catch (error) {
+              console.error('Error writing roadmap file:', error);
+            }
+            
+      - name: Commit roadmap summary
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add docs/ROADMAP.md
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto-update roadmap summary"
+            git push
+          fi

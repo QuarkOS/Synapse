@@ -1,0 +1,119 @@
+name: 🚀 Feature Request / Roadmap Item
+description: Suggest a new feature or enhancement for the Synapse roadmap
+title: "[FEATURE] "
+labels: ["enhancement", "roadmap"]
+projects: ["QuarkOS/1"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to suggest a new feature! This will be automatically added to our roadmap project.
+        
+  - type: input
+    id: feature-title
+    attributes:
+      label: Feature Title
+      description: A concise title for this feature
+      placeholder: e.g., "Add support for multiple AI providers"
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How important is this feature?
+      options:
+        - Low - Nice to have
+        - Medium - Would improve user experience
+        - High - Important for core functionality
+        - Critical - Blocking or security related
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: roadmap-timeline
+    attributes:
+      label: Roadmap Timeline
+      description: When should this be implemented?
+      options:
+        - Next Release (v1.1)
+        - Short Term (2-3 months)
+        - Medium Term (3-6 months)
+        - Long Term (6+ months)
+        - Future Consideration
+    validations:
+      required: true
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Feature Description
+      description: Describe the feature in detail
+      placeholder: What should this feature do? How would users interact with it?
+    validations:
+      required: true
+      
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case / Problem
+      description: What problem does this solve?
+      placeholder: Describe the problem or use case this feature addresses
+    validations:
+      required: true
+      
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: How do you think this should be implemented?
+      placeholder: Technical details, API changes, UI mockups, etc.
+    validations:
+      required: false
+      
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What other approaches have you considered?
+      placeholder: Alternative solutions or workarounds
+    validations:
+      required: false
+      
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: Implementation Complexity
+      description: How complex do you think this feature would be to implement?
+      options:
+        - Simple - Minor code changes
+        - Moderate - Some refactoring required
+        - Complex - Significant architecture changes
+        - Unknown - Needs investigation
+    validations:
+      required: false
+      
+  - type: checkboxes
+    id: impact-areas
+    attributes:
+      label: Impact Areas
+      description: Which parts of Synapse would this affect?
+      options:
+        - label: Core clipboard functionality
+        - label: AI integration
+        - label: User interface
+        - label: Configuration/Settings
+        - label: Performance
+        - label: Security
+        - label: Documentation
+        - label: Build/Deploy process
+        
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other context, screenshots, or examples
+      placeholder: Links, images, examples from other tools, etc.
+    validations:
+      required: false

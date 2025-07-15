@@ -1,0 +1,138 @@
+name: 🐛 Bug Report
+description: Report a bug to help us improve Synapse
+title: "[BUG] "
+labels: ["bug"]
+projects: ["QuarkOS/1"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! This will be automatically added to our project board for tracking.
+        
+  - type: input
+    id: bug-title
+    attributes:
+      label: Bug Title
+      description: A concise title describing the bug
+      placeholder: e.g., "Clipboard not updating when copying from PDF"
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is this bug?
+      options:
+        - Low - Minor inconvenience
+        - Medium - Affects functionality but has workaround
+        - High - Major functionality broken
+        - Critical - Application unusable or security issue
+    validations:
+      required: true
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug Description
+      description: Describe what happened
+      placeholder: What went wrong? What did you expect to happen?
+    validations:
+      required: true
+      
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this bug?
+      placeholder: |
+        1. Go to...
+        2. Click on...
+        3. Copy text...
+        4. See error
+    validations:
+      required: true
+      
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What should have happened?
+      placeholder: Describe the expected behavior
+    validations:
+      required: true
+      
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+      placeholder: Describe what actually occurred
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: Which OS are you using?
+      options:
+        - Windows 11
+        - Windows 10
+        - macOS (latest)
+        - macOS (older version)
+        - Ubuntu/Debian
+        - Other Linux
+        - Other (specify in additional context)
+    validations:
+      required: true
+      
+  - type: input
+    id: java-version
+    attributes:
+      label: Java Version
+      description: Which Java version are you using?
+      placeholder: e.g., OpenJDK 17, Oracle JDK 21
+    validations:
+      required: true
+      
+  - type: input
+    id: synapse-version
+    attributes:
+      label: Synapse Version
+      description: Which version of Synapse?
+      placeholder: e.g., v1.0, latest from main branch
+    validations:
+      required: true
+      
+  - type: textarea
+    id: error-logs
+    attributes:
+      label: Error Logs
+      description: Any error messages or logs
+      placeholder: Paste any relevant error messages or log output
+      render: text
+    validations:
+      required: false
+      
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other context about the problem
+      placeholder: Screenshots, related issues, configuration details, etc.
+    validations:
+      required: false
+      
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues to make sure this is not a duplicate
+          required: true
+        - label: I have provided all the required information above
+          required: true
+        - label: I am using a supported Java version (17+)
+          required: true

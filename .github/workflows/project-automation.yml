@@ -1,0 +1,73 @@
+name: Project Automation
+
+on:
+  issues:
+    types: [opened, edited, labeled, unlabeled, assigned, unassigned, closed, reopened]
+  pull_request:
+    types: [opened, edited, labeled, unlabeled, assigned, unassigned, closed, reopened, ready_for_review, converted_to_draft]
+  issue_comment:
+    types: [created]
+
+jobs:
+  add-to-project:
+    name: Add issue or PR to project
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened'
+    steps:
+      - name: Add to project
+        uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: https://github.com/users/QuarkOS/projects/1
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+
+  update-project-status:
+    name: Update project item status
+    runs-on: ubuntu-latest
+    if: github.event.action == 'closed' || github.event.action == 'reopened'
+    steps:
+      - name: Update project status
+        uses: titoportas/update-project-action@v0.1.0
+        with:
+          project-url: https://github.com/users/QuarkOS/projects/1
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          labeled: ${{ github.event.action == 'closed' && 'Done' || 'In Progress' }}
+          
+  sync-labels-to-project:
+    name: Sync labels to project fields
+    runs-on: ubuntu-latest
+    if: github.event.action == 'labeled' || github.event.action == 'unlabeled'
+    steps:
+      - name: Set project priority
+        uses: titoportas/update-project-action@v0.1.0
+        with:
+          project-url: https://github.com/users/QuarkOS/projects/1
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          organization: QuarkOS
+          project-number: 1
+        env:
+          GITHUB_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+
+  auto-assign-reviewers:
+    name: Auto-assign for roadmap items
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    steps:
+      - name: Check if roadmap related
+        id: check-roadmap
+        run: |
+          if [[ "${{ github.event.pull_request.title }}" =~ [Rr]oadmap|[Ff]eature|[Ee]nhancement ]]; then
+            echo "is_roadmap=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Add roadmap label and assign to project
+        if: steps.check-roadmap.outputs.is_roadmap == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['roadmap', 'enhancement']
+            });

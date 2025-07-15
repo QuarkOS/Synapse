@@ -86,11 +86,30 @@ After building, you can run the application from your terminal.
 
 Synapse will now be running in the background. Simply copy a question from any application to see it in action! To stop the application, return to the terminal and press `Ctrl+C`.
 
-## 🗺️ Roadmap
+## 🗺️ Interactive Roadmap
 
-Want to see what's planned, what's in progress, or suggest a new feature? Check out our interactive project board!
+Our roadmap is now fully managed through **GitHub Projects** - no more static markdown files! 🎉
 
-👉 **[View the Project Roadmap](https://github.com/users/QuarkOS/projects/1/views/1)**
+👉 **[View the Interactive Roadmap](https://github.com/users/QuarkOS/projects/1/views/1)**
+
+### ✨ New Roadmap Features
+
+- **🎯 Interactive Planning**: Drag-and-drop prioritization and real-time status updates
+- **🤖 Automated Integration**: Issues and PRs automatically added and categorized
+- **📊 Live Analytics**: Track progress, velocity, and completion rates
+- **🚀 Smart Suggestions**: The app itself can suggest features based on usage patterns
+- **💬 Community Collaboration**: Easy for anyone to propose features and join discussions
+
+### 🎯 How to Contribute to the Roadmap
+
+1. **📝 Suggest Features**: Use our [Feature Request template](https://github.com/QuarkOS/Synapse/issues/new?template=feature_request.yml)
+2. **🐛 Report Bugs**: Use our [Bug Report template](https://github.com/QuarkOS/Synapse/issues/new?template=bug_report.yml)  
+3. **💭 Join Planning**: Participate in [Roadmap Discussions](https://github.com/QuarkOS/Synapse/issues/new?template=roadmap_discussion.yml)
+4. **📋 Pick Up Tasks**: Look for [help wanted](https://github.com/QuarkOS/Synapse/labels/help%20wanted) issues
+
+All contributions are automatically integrated into our project board with proper categorization and priority assignment!
+
+📚 **[Learn more about our GitHub Projects integration →](docs/GITHUB_PROJECTS_INTEGRATION.md)**
 
 ## Who is this for?
 
@@ -101,6 +120,17 @@ Synapse is built for anyone who values focus and speed. It's the ultimate produc
 Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
 We use our [GitHub Project Board](https://github.com/users/QuarkOS/projects/1/views/1) to track tasks and bugs. This is the best place to start if you're looking for something to work on.
+
+### 🚀 Quick Start for Contributors
+
+1. **Check the [Interactive Roadmap](https://github.com/users/QuarkOS/projects/1/views/1)** to see what's planned
+2. **Use our issue templates** to ensure proper categorization:
+   - [🚀 Feature Request](https://github.com/QuarkOS/Synapse/issues/new?template=feature_request.yml) - Automatically added to roadmap
+   - [🐛 Bug Report](https://github.com/QuarkOS/Synapse/issues/new?template=bug_report.yml) - Auto-triaged by severity
+   - [📋 Roadmap Discussion](https://github.com/QuarkOS/Synapse/issues/new?template=roadmap_discussion.yml) - Plan project direction
+3. **Look for [help wanted](https://github.com/QuarkOS/Synapse/labels/help%20wanted) issues** on the project board
+
+### 📋 Contribution Process
 
 1.  Fork the Project
 2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)

@@ -107,6 +107,20 @@
             <artifactId>commons-text</artifactId>
             <version>1.13.1</version>
         </dependency>
+
+        <!-- GitHub API for roadmap integration -->
+        <dependency>
+            <groupId>org.kohsuke</groupId>
+            <artifactId>github-api</artifactId>
+            <version>1.323</version>
+        </dependency>
+
+        <!-- HTTP client for GitHub GraphQL API -->
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <version>5.4.1</version>
+        </dependency>
     </dependencies>
 
     <properties>

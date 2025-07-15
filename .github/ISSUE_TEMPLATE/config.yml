@@ -1,0 +1,38 @@
+name: 📝 Issue Configuration
+description: Choose the type of issue you want to create
+title: "Issue: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Choose the type of issue you want to create for the Synapse project.
+        All issues are automatically added to our [roadmap project](https://github.com/users/QuarkOS/projects/1/views/1).
+        
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Issue Type
+      description: What type of issue are you creating?
+      options:
+        - 🚀 Feature Request / Enhancement
+        - 🐛 Bug Report
+        - 📋 Roadmap Planning Discussion
+        - 💡 Idea / Suggestion
+        - 📚 Documentation Improvement
+        - ❓ Question / Support
+    validations:
+      required: true
+      
+  - type: markdown
+    attributes:
+      value: |
+        ## Next Steps
+        
+        After selecting your issue type, you'll be redirected to the appropriate template with GitHub Projects integration.
+        
+        - **Feature Requests** are automatically labeled as `enhancement` and `roadmap`
+        - **Bug Reports** are labeled as `bug` and triaged based on severity
+        - **Roadmap Discussions** help plan project direction and priorities
+        - All issues are added to our [project board](https://github.com/users/QuarkOS/projects/1) for tracking
+        
+        Thank you for contributing to Synapse! 🎉
