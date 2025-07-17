@@ -107,6 +107,19 @@
             <artifactId>commons-text</artifactId>
             <version>1.13.1</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/junit/junit -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.joestelmach/natty -->
+        <dependency>
+            <groupId>com.joestelmach</groupId>
+            <artifactId>natty</artifactId>
+            <version>0.13</version>
+        </dependency>
     </dependencies>
 
     <properties>
