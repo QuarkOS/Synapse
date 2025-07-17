@@ -28,7 +28,7 @@ public class SpotifyAuthenticator {
     private static final URI redirectUri = URI.create("http://127.0.0.1:8888/callback");
     private static final Logger logger = LoggerFactory.getLogger(SpotifyAuthenticator.class);
 
-    private final SpotifyApi spotifyApi = new SpotifyApi.Builder()
+    private static final SpotifyApi spotifyApi = new SpotifyApi.Builder()
             .setClientId(dotenv.get("SPOTIFY_CLIENT_ID"))
             .setClientSecret(dotenv.get("SPOTIFY_CLIENT_SECRET"))
             .setRedirectUri(redirectUri)
@@ -126,7 +126,7 @@ public class SpotifyAuthenticator {
      * Returns the configured SpotifyApi instance. Call this *after* authenticate().
      * @return The SpotifyApi instance, ready to be used.
      */
-    public SpotifyApi getSpotifyApi() {
-        return this.spotifyApi;
+    public static SpotifyApi getSpotifyApi() {
+        return spotifyApi;
     }
 }
