@@ -1,7 +1,7 @@
 # Synapse 🧠✨
 
 ![GitHub stars](https://img.shields.io/github/stars/QuarkOS/synapse?style=flat-square)
-[![Project Roadmap](https://img.shields.io/badge/Project-Roadmap-7B68EE?style=flat-square)](https://github.com/users/QuarkOS/projects/1/views/1)
+[![Project Roadmap](https://img.shields.io/badge/Project-Backlog-7B68EE?style=flat-square)](https://github.com/users/QuarkOS/projects/1/views/1)
 ![License](https://img.shields.io/github/license/QuarkOS/synapse?style=flat-square)
 
 **Copy a question, paste an answer.**
