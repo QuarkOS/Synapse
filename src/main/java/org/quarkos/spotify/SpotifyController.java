@@ -183,4 +183,52 @@ public class SpotifyController {
             return null;
         }
     }
+
+    public void pause() {
+        try {
+            String deviceId = getAvailableDeviceId();
+            if (deviceId != null) {
+                spotifyApi.pauseUsersPlayback().device_id(deviceId).build().execute();
+                logger.info("Playback paused.");
+            }
+        } catch (Exception e) {
+            logger.error("Failed to pause playback.", e);
+        }
+    }
+
+    public void resume() {
+        try {
+            String deviceId = getAvailableDeviceId();
+            if (deviceId != null) {
+                spotifyApi.startResumeUsersPlayback().device_id(deviceId).build().execute();
+                logger.info("Playback resumed.");
+            }
+        } catch (Exception e) {
+            logger.error("Failed to resume playback.", e);
+        }
+    }
+
+    public void skip() {
+        try {
+            String deviceId = getAvailableDeviceId();
+            if (deviceId != null) {
+                spotifyApi.skipUsersPlaybackToNextTrack().device_id(deviceId).build().execute();
+                logger.info("Skipped to next track.");
+            }
+        } catch (Exception e) {
+            logger.error("Failed to skip track.", e);
+        }
+    }
+
+    public void previous() {
+        try {
+            String deviceId = getAvailableDeviceId();
+            if (deviceId != null) {
+                spotifyApi.skipUsersPlaybackToPreviousTrack().device_id(deviceId).build().execute();
+                logger.info("Skipped to previous track.");
+            }
+        } catch (Exception e) {
+            logger.error("Failed to skip to previous track.", e);
+        }
+    }
 }
