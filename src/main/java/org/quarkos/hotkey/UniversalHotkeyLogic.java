@@ -31,7 +31,7 @@ public class UniversalHotkeyLogic implements PresetHotkeys.PresetHotkeyActions {
         if (prompt != null && !prompt.trim().isEmpty()) {
             try {
                 logger.debug("Prompt from clipboard: \"" + prompt + "\"");
-                Map.Entry<String, Long> response = Gemini.generateStructuredResponse(prompt, Gemini.DEFAULT_MODEL);
+                Map.Entry<String, Long> response = Gemini.generateStructuredResponse(prompt);
                 logger.debug("Gemini Response: " + response);
                 // Optionally, copy the response back to the clipboard or show a notification
                 // ClipboardUtil.copyToClipboard(response); // Example
